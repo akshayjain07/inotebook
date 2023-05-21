@@ -7,6 +7,8 @@ var jwt = require('jsonwebtoken');
 
 const JWT_SECRET = 'harryisagoodb$oy';
 
+// Create a user using: POST "/api/auth/createuser". No login required
+
 router.post('/createuser',[
     body('name','Name is required').notEmpty(),
     body('email','Invalid email address').isEmail(),
@@ -43,7 +45,44 @@ router.post('/createuser',[
             res.json({token})
         }catch(error){
             console.error(error.message);
-            res.status(500).send("Some error occured")
+            res.status(500).send("Internal server error");
         }
 })
+
+    // Authenticating a user using: POST "/api/auth/login". No login required
+    // Fistly I will try to the entered email and password is valid or not
+    router.post('/login',[
+        body('email','Invalid email address').isEmail(),
+        body('password','Password cannot be empty').exists()
+      ], async (req,res)=>{
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+            
+            // then here we try to find out whether the user exists in database or not 
+            const {email, password} = req.body;
+            try{
+                let user = await User.findOne({email});
+                if(!user){
+                    return res.status(400).json({error:"Please try to login with correct credentials"});
+                }
+                const passwordCompare = bcrypt.compare(password, user.password);
+                if(!passwordCompare){
+                    return res.status(400).json({error:"Please try to login with correct credentials"});
+                }
+                const data = {
+                    user:{
+                        id:user.id
+                    }
+                }
+                const token = jwt.sign(data, 'shhhhh');
+                res.json({token})
+            }catch(error){
+                console.error(error.message);
+                res.status(500).send("Internal server error");
+            }
+        }    
+    )
+
 module.exports = router
