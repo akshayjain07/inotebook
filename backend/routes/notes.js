@@ -59,7 +59,7 @@ router.put('/updatenote/:id', fetchuser, async (req,res)=>{
         // If the note does not exist 
         if(!note){return res.status(404).send("not found")}
 
-        // allow deletion only if user owns this note
+        // allow updation only if user owns this note
         // 1) will give is note ki id 2) request me jo id maang rha hai 
         if(note.user.toString() !== req.user.id){               
             return res.status(401).send("not allowed")
