@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 const NoteState = (props) => {
 
+    const host = "http://localhost:5000"
+
     const notesInitial = [
       {
         "_id": "646dfb4c69b335de035771c8",
@@ -82,7 +84,20 @@ const NoteState = (props) => {
     const[notes, setNotes] = useState(notesInitial);
 
       // Add a note
-      const addNote = (title, description, tag) => {
+      const addNote = async(title, description, tag) => {
+        // API Call
+        const url = `${host}/api/notes/addnote`
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjQ2YjI2ZmZhNzM4MzIwYmY1YmVlYmYwIn0sImlhdCI6MTY4NDc2MDY2OH0.Bu3vzwhykazt3ohYV4Fz6q_oR0aytDHAjk8O-jJxmDo"
+          },
+          body: JSON.stringify({title, description, tag}), 
+        });
+        const json = response.json(); 
+
+        // Logic to add in client
         console.log("Adding a new note")
         const note = {
         "_id": uuidv4(),
@@ -105,8 +120,28 @@ const NoteState = (props) => {
       }
       
       // Edit a note 
-      const editNote = () => {
+      const editNote = async(id, title, description, tag) => {
+        //API Call
+        const url = `${host}/api/notes/updatenote/646dfb4c69b335de035771c8`
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjQ2YjI2ZmZhNzM4MzIwYmY1YmVlYmYwIn0sImlhdCI6MTY4NDc2MDY2OH0.Bu3vzwhykazt3ohYV4Fz6q_oR0aytDHAjk8O-jJxmDo"
+          },
+          body: JSON.stringify({title, description, tag}), 
+        });
+        const json = response.json(); 
 
+        // Logic to edit in client
+        for (let index = 0; index < notes.length; index++) {
+          const element = notes[index];
+          if(element._id === id){
+            element.title = title;
+            element.description = description;
+            element.tag = tag;
+          }
+        }
       }
       
     return (
